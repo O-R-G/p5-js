@@ -1,0 +1,34 @@
+#!/bin/sh
+
+# minimal p5.js 
+# runs python local server
+# edit sketch.js, index.html as needed
+# localhost:8000 saved as p5.app
+# kill any process using the port
+# start server in background
+# open p5.app
+# check if server running, also can use:
+# pgrep -fl "http.server"
+
+PORT=8000
+PID=$(lsof -ti :$PORT)
+if [ -n "$PID" ]; then
+  echo "killing process on port $PORT (pid $PID)"
+  kill $PID
+fi
+
+echo "starting http.server on port $PORT in new terminal"
+
+osascript <<EOF
+tell application "Terminal"
+    do script "cd \"$PWD\" && python3 -m http.server $PORT"
+    set current settings of front window to settings set "Homebrew alt"
+    activate
+end tell
+EOF
+
+sleep 0.5
+open -a p5
+# open "http://localhost:$PORT"
+
+
