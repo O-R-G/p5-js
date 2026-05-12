@@ -17,13 +17,14 @@ if [ -n "$PID" ]; then
   kill $PID
 fi
 
-echo "starting http.server on port $PORT in new terminal"
+DIR="$(cd "$(dirname "$0")" && pwd)"
+echo "DIR=$DIR"
 
 osascript <<EOF
 tell application "Terminal"
-    do script "cd \"$PWD\" && python3 -m http.server $PORT"
-    set current settings of front window to settings set "Homebrew alt"
     activate
+    do script "cd \"$DIR\"; python3 -m http.server $PORT"
+    set current settings of front window to settings set "Homebrew alt"
 end tell
 EOF
 
