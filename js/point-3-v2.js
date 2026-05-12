@@ -2,17 +2,24 @@
 
     point 3. cause and effect
 
-	z = zoom to fit
-	← = rotateY - PI/2
-	→ = rotateY + PI/2
-	  = toggle pause
-	. = toggle record
+	=   zoom in
+	-   zoom out
+	←   rotateY -PI/2
+	→   rotateY +PI/2
+	.   toggle record
+	    toggle pause
+
+    1   scene 1
+    2   scene 2
+    3   scene 2
 
 */
 let cols = 10;
 let rows = 20;
 let scaleSize = 15;
-let sceneZoom = 1;
+let sceneZoom = 0;
+let targetZoom = 1;
+let incrementZoom = 3;
 let sceneRotationY = 0;
 let targetRotationY = 0;
 let values = [];
@@ -40,6 +47,8 @@ function setup() {
       		values[x][z] = 0;
     	}
   	}
+    targetZoom = 9.5;
+    targetRotationY += 0.5 * PI;
 }
 
 function draw() {
@@ -48,9 +57,11 @@ function draw() {
     stroke(255);
 	strokeWeight(2);
 	// smooth();
+
+    sceneZoom += (targetZoom - sceneZoom) * 0.08;
+    scale(sceneZoom);
     sceneRotationY += (targetRotationY - sceneRotationY) * 0.08;
     rotateY(sceneRotationY);
-    scale(sceneZoom);
     let driftX = noise(t) * 100;            // v3
     let driftZ = noise(t + 1000) * 100;     // v3
     for (let x = 0; x < cols; x++) {
@@ -127,10 +138,24 @@ function keyPressed() {
     if (keyCode === LEFT_ARROW) {
         targetRotationY -= 0.5 * PI;
     }
-    if (key === 'z') {
-        let drawingWidth = (cols - 1) * scaleSize * 1.25;
-        sceneZoom = width / drawingWidth;
+    if (key === '=') {
+        targetZoom *= incrementZoom;
     }
+    if (key === '-') {
+        targetZoom /= incrementZoom    
+    }
+    if (key === '1') {
+        targetRotationY -= 0.5 * PI;
+    }
+    if (key === '2') {
+        targetZoom *= incrementZoom * 2;
+    }
+    if (key === '3') {
+        targetZoom /= incrementZoom * 2;
+        targetRotationY += 0.5 * PI;
+    }
+
+
     if (key === ' ') {
         if (isLooping()) {
             noLoop();
