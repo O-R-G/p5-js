@@ -93,56 +93,87 @@ function populate_dense(_points, _points_max) {
     return _points;
 }
 
+/*    
+    scenes
+
+    0 → draw 0 and 1
+    1 → draw points[]
+    2 → draw cut 
+    3 → zoom
+*/
+
 function draw() {
-    background(0);
     t += 0.01; 
     n = floor(t);
     if (!running) {
     	background(50);
         debugMode();
         orbitControl();
+    } else {
+        // animate fov (lens zoom)
+        fov = map(sin(frameCount * 0.01), -1, 1,
+              radians(3),
+              radians(120));
+        perspective(fov, width / height, 0.1, 10000);
+        background(0);
     }
-    /*
-    if (!running) {
-        camera(
-            0, 0, camOffset,
-            0, 0, 0,
-            0, 1, 0
-        );
+    push();
+
+    // 0 → draw 0 and 1
+
+  	fill(255,0,0); 
+	text(0,-width/2 * 0.75,0);
+	text(1,width/2 * 0.75,0);
+
+    // 1 → draw points[]
+
+    for (let i = points.length - 1; i >= 0; i--) {   
+        // reverse order to fix 3d transparency
+        let isZeroOrOne = points[i].val === 0 || points[i].val === 1;
+        if (scene === 0 && !isZeroOrOne) continue;
+        let s = pow(0.5, points[i].layer);
+        textSize(196 * 2 * s);
+        push();
+        translate(points[i].x, points[i].y, points[i].z);
+        if (scene === 0)
+            fill(255, 0, 0, 255);
+        else
+            fill(0, 255, 0, 100);
+        noStroke();
+        if (![0, 0.5, 1].includes(points[i].val) || scene === 0)
+            text(noSci(points[i].val, 64), 0, 0);
+        pop();
     }
-    */
-    // 4. draw center red line in screen space
+
+    // 2 → draw cut 
 
     if (scene >= 2) {
         push();
         resetMatrix();
-
         sceneT += 0.01;
         let lineT = constrain(sceneT, 0, 1);
-
         let yTop = lerp(0, -height / 2 + 100, lineT);
         let yBottom = lerp(0, height / 2 - 100, lineT);
-
         stroke(255, 0, 0);
         strokeWeight(2);
         line(0, yTop, 0, yBottom);
-
         pop();
     }
 
-    push();
+    // 3 → zoom
 
-	// 1. move camera from current point to next point
     if (running) {
         if (scene === 3) {
             travelT += 0.02;
             let z = camOffset - travelT * 1000;
+            camera(0,0,0);      // debug
+            /*
             camera(
                 0, 0, z,
                 0, 0, z - 1000,
                 0, 1, 0
             );
-            // rotateY(travelT * 0.005);
+            */
         } else {
             camera(
                 0, 0, camOffset,
@@ -152,57 +183,7 @@ function draw() {
         }
     }
 
-	// 2. draw points[] in 3d from end of array to fix transparency
-/*
-    for (let i = points.length - 1; i >= 0; i--) {
-        let s = pow(0.5, points[i].layer);
-        textSize(196 * s * 2);
-        push();
-        translate(points[i].x, points[i].y, points[i].z);
-        fill(0,255,0,100); 
-        noStroke();
-        if (![0, 0.5, 1].includes(points[i].val))
-            text(noSci(points[i].val, 64), 0, 0);
-        pop();
-    }    
-*/
-
-    // possibly animate fov? 
-    // to emphasize cut
-
-    for (let i = points.length - 1; i >= 0; i--) {
-        let isZeroOrOne = points[i].val === 0 || points[i].val === 1;
-
-        if (scene === 0 && !isZeroOrOne) continue;
-
-        let s = pow(0.5, points[i].layer);
-        textSize(196 * 2 * s);
-
-        push();
-        translate(points[i].x, points[i].y, points[i].z);
-
-        if (scene === 0) {
-            fill(255, 0, 0, 255);
-        } else {
-            fill(0, 255, 0, 100);
-        }
-
-        noStroke();
-
-        if (![0, 0.5, 1].includes(points[i].val) || scene === 0) {
-            text(noSci(points[i].val, 64), 0, 0);
-        }
-
-        pop();
-    }
-
-
-    // 3. draw 0 and 1
-  	fill(255,0,0); 
-	text(0,-width/2 * 0.75,0);
-	text(1,width/2 * 0.75,0);
     pop();
-
 }
 
 function ease(_t) {
@@ -222,15 +203,6 @@ function noSci(n, digits) {
         return n.toFixed(digits).replace(/\.?0+$/, '');
     }
 }
-
-/*
-    scenes
-
-    0 → red 0 and 1 only
-    1 → green populated numbers
-    2 → red center line draws
-    3 → slow zoom
-*/
 
 function keyPressed() {
     if (key === ' ') { 
