@@ -8,19 +8,16 @@ let font;
 let t = 0;                  // time 
 let n = 0;                  // current loop 
 let points = [];            // to draw
-let points_max = 100;       // max to draw
-let running = true;        // starts paused
-let reverse = false;        // reverse 
-
+let points_max = 800;
+let running = true;        
 let camZ;
-// let camOffset = 1000; // distance in front of current point
-let camOffset = 2500; // distance in front of current point
+let camOffset = 1500; // distance in front of current point
 let camTarget = { x: 0, y: 0, z: 0 };
 let targetIndex = 0;
 let travelT = 0;
-// let travelSpeed = 0.0125; 	// [0.05]
-// let travelSpeed = 0.5; 	// [0.05]
-let travelSpeed = 0.25; 	// [0.05]
+let travelSpeed = 0.00005; 	// [0.05]
+let scene = 0;
+let sceneT = 0;
 
 function preload() {
   /*
@@ -31,37 +28,68 @@ function preload() {
 }
 
 function setup() {
-    // createCanvas(800, 450, WEBGL);
     createCanvas(1600, 900, WEBGL);
     textFont(font);
-    textAlign(LEFT, CENTER);
+    textAlign(CENTER, CENTER);
     textSize(196);
-    points = populate(points, points_max);
-    fov = PI / 3; // default perspective fov
+    points = populate_dense(points, points_max);
+    points_max = points.length;
+    // default perspective camera 
+    // fov = PI / 3;       // default fov
+    // fov = PI / 4;       
+    fov = PI / 6;       
     let near = 0.01;
     let far = 1e6;
     perspective(fov, width/height, near, far);
     camZ = points[0].z + camOffset;
 }
 
-function populate(_points,_points_max) {
-    let _val = 1;
-    let _x = width;
-    for (let i = 0; i < _points_max; i++) {
-        _points.push({
-            val: _val,
-            // x: _x,
-            x: _x * 0.5,		// condense x
-            y: 0,
-            // z: i * -500
-            z: i * -100
-            // z: -1/_val * 0.1
-        });
-        _x/=2;
-        _val/=2;
+/*        
+    recursively populate points[] in 'layers'
+
+    [0] → 0, 1
+    [1] → 0.5
+    [2] → 0.25, 0.75
+    [3] → 0.125, 0.375, 0.625, 0.875
+    ...
+*/
+function populate_dense(_points, _points_max) {
+    let ordered = [0, 1];
+    let currentLayer = [[0, 1]];
+    while (ordered.length < _points_max) {
+        let nextLayer = [];
+        for (let i = 0; i < currentLayer.length; i++) {
+            let a = currentLayer[i][0];
+            let b = currentLayer[i][1];
+            let mid = (a + b) / 2;
+            ordered.push(mid);
+            nextLayer.push([a, mid]);
+            nextLayer.push([mid, b]);
+        }
+        currentLayer = nextLayer;
     }
-    console.log("** points[] populated **");
-    console.log(points);
+    ordered = ordered.slice(0, _points_max);
+    _points = [];       // convert to points
+    let layer = 0;
+    let countInLayer = 2;
+    let usedInLayer = 0;
+    for (let i = 0; i < ordered.length; i++) {
+        let v = ordered[i];
+        _points.push({
+            val: v,
+            layer: layer,
+            x: map(v, 0, 1, -width / 2, width / 2),
+            y: 0,
+            // z: -500 * (pow(1.25, layer) - 1)
+            z: layer * -100
+        });
+        usedInLayer++;
+        if (usedInLayer >= countInLayer) {
+            layer++;
+            usedInLayer = 0;
+            countInLayer = pow(2, layer - 1);
+        }
+    }
     return _points;
 }
 
@@ -70,55 +98,111 @@ function draw() {
     t += 0.01; 
     n = floor(t);
     if (!running) {
-    	background(100);
-        orbitControl();
+    	background(50);
         debugMode();
+        orbitControl();
+    }
+    /*
+    if (!running) {
+        camera(
+            0, 0, camOffset,
+            0, 0, 0,
+            0, 1, 0
+        );
+    }
+    */
+    // 4. draw center red line in screen space
+
+    if (scene >= 2) {
+        push();
+        resetMatrix();
+
+        sceneT += 0.01;
+        let lineT = constrain(sceneT, 0, 1);
+
+        let yTop = lerp(0, -height / 2 + 100, lineT);
+        let yBottom = lerp(0, height / 2 - 100, lineT);
+
+        stroke(255, 0, 0);
+        strokeWeight(2);
+        line(0, yTop, 0, yBottom);
+
+        pop();
     }
 
     push();
 
 	// 1. move camera from current point to next point
-
     if (running) {
-    	if (!points[targetIndex])
-			targetIndex--;
-        let a = (points[targetIndex]);
-        let b = points[min(targetIndex + 1, points.length - 1)];
-        travelT += travelSpeed;
-        let e = ease(travelT);
-        camZ = lerp(a.z + camOffset, b.z + camOffset, e);
-        if (travelT >= 1) {
-            travelT = 0;
-            targetIndex++;
+        if (scene === 3) {
+            travelT += 0.02;
+            let z = camOffset - travelT * 1000;
+            camera(
+                0, 0, z,
+                0, 0, z - 1000,
+                0, 1, 0
+            );
+            // rotateY(travelT * 0.005);
+        } else {
+            camera(
+                0, 0, camOffset,
+                0, 0, 0,
+                0, 1, 0
+            );
         }
-        camera(
-            0, 0, camZ,
-            b.x, b.y, b.z,
-            0, 1, 0
-        );
-    } 
-
-	// translate(-width/4, 0, 0); 	// shift scene left
-	// translate(-width/8, 0, 0); 	// shift scene left
-	translate(1/t * -200, 0, 0); 	// sweep scene left
-	// translate(1/t * -500, 0, 0); 	// sweep scene left
-    // rotateX(PI/32);
+    }
 
 	// 2. draw points[] in 3d from end of array to fix transparency
+/*
     for (let i = points.length - 1; i >= 0; i--) {
+        let s = pow(0.5, points[i].layer);
+        textSize(196 * s * 2);
         push();
         translate(points[i].x, points[i].y, points[i].z);
         fill(0,255,0,100); 
         noStroke();
-        text(noSci(points[i].val, 64), 0, 0);
+        if (![0, 0.5, 1].includes(points[i].val))
+            text(noSci(points[i].val, 64), 0, 0);
+        pop();
+    }    
+*/
+
+    // possibly animate fov? 
+    // to emphasize cut
+
+    for (let i = points.length - 1; i >= 0; i--) {
+        let isZeroOrOne = points[i].val === 0 || points[i].val === 1;
+
+        if (scene === 0 && !isZeroOrOne) continue;
+
+        let s = pow(0.5, points[i].layer);
+        textSize(196 * 2 * s);
+
+        push();
+        translate(points[i].x, points[i].y, points[i].z);
+
+        if (scene === 0) {
+            fill(255, 0, 0, 255);
+        } else {
+            fill(0, 255, 0, 100);
+        }
+
+        noStroke();
+
+        if (![0, 0.5, 1].includes(points[i].val) || scene === 0) {
+            text(noSci(points[i].val, 64), 0, 0);
+        }
+
         pop();
     }
-        
-    // draw 0 and 1
-	fill(255,0,0); 
-	text(0,0,0);
-	text(1,width/2,0);
+
+
+    // 3. draw 0 and 1
+  	fill(255,0,0); 
+	text(0,-width/2 * 0.75,0);
+	text(1,width/2 * 0.75,0);
     pop();
+
 }
 
 function ease(_t) {
@@ -139,12 +223,34 @@ function noSci(n, digits) {
     }
 }
 
+/*
+    scenes
+
+    0 → red 0 and 1 only
+    1 → green populated numbers
+    2 → red center line draws
+    3 → slow zoom
+*/
+
 function keyPressed() {
     if (key === ' ') { 
         running = !running; 
     }
-    if (key === 'R' || key === 'r') { 
-        running = true;       // make sure it runs
-        reverse = !reverse;   // toggle reverse mode
+    if (key === '0') {
+        scene = 0;
+        travelT = 0;
+    }
+    if (key === '1') {
+        scene = 1;
+        sceneT = 0;
+    }
+    if (key === '2') {
+        scene = 2;
+        sceneT = 0;
+    }
+    if (key === '3') {
+        scene = 3;
+        travelT = 0;
     }
 }
+
