@@ -47,8 +47,9 @@ function draw() {
         orbitControl();
     } else {
 	    background(0);
-        perspective(fov, width/height, near, far);
     }
+        
+    perspective(fov, width/height, near, far);
     push();
 
     /*
@@ -76,15 +77,16 @@ function draw() {
 	        translate(points[i].x, points[i].y, points[i].z);
 	        if (![0, 0.5, 1].includes(points[i].val) || scene === 0) {
                 let layer = min(points[i].val, 1 - points[i].val);	
-                let delay = layer * 4.0;
-                let fadeDur = 0.35;
-                let a = constrain((scene_t - delay) / fadeDur, 0, 1);
+                let fade_delay = layer * 4.0;
+                let fade_duration = 0.35;
+                let a = constrain((scene_t - fade_delay) / fade_duration, 0, 1);
                 a = ease(a);
                 fill(0, 255, 0, 255 * a);
 	            text(noSci(points[i].val, 64), 0, 0);
 	        }
 	        pop();
 	    }
+        console.log(fov);
     }
 
     /*
@@ -107,7 +109,7 @@ function draw() {
         3 → zoom
     */
 
-	if (scene === 3) {
+	if (scene === 3 && running) {
 		zoom_t += 0.001;
 		let t = min(zoom_t, 1);
 		let z = lerp(zoom_offset, zoom_offset - 500000, t);
