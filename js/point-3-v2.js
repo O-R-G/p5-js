@@ -1,5 +1,4 @@
 /*
-
     point 3. cause and effect
 
 	=   zoom in
@@ -11,9 +10,9 @@
 
     1   scene 1
     2   scene 2
-    3   scene 2
-
+    3   scene 3
 */
+
 let cols = 10;
 let rows = 20;
 let scaleSize = 15;

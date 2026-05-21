@@ -1,6 +1,13 @@
 /*
-    todo : zoom and translate keeping all in frame
-    see scene 1, fov, textwidth, etc
+    point 0. two kinds of infinity
+
+    .   toggle record
+        toggle pause
+
+    0   scene 1
+    1   scene 1
+    2   scene 2
+    3   scene 3
 */
 
 let font;
@@ -11,9 +18,13 @@ let fov = 1.0472;
 let near = 0.01;
 let far = 1e6;
 let zoom_offset = 0; 
-let zoom_t = 0;
 let scene = 0;
-let scene_t = 0;
+let points_t = 0;
+let cut_t = 0;
+let zoom_t = 0;
+let recorder;
+let chunks = [];
+let recording = false;
 
 function preload() {      
     // explicit load required for webgl to display text
@@ -47,19 +58,43 @@ function draw() {
         orbitControl();
     } else {
 	    background(0);
+        noDebugMode();
+        perspective(fov, width/height, near, far);
     }
-        
-    perspective(fov, width/height, near, far);
-    push();
 
     /*
-        0 → draw 0 and 1
+        3 → zoom
     */
 
-    if (scene >= 0) {
-      	fill(255,0,0); 
-    	text(0,-width/2 * 0.75,0);
-	    text(1,width/2 * 0.75,0);
+	if (scene === 3 && running) {
+		let t = min(zoom_t, 1);
+		let z = lerp(zoom_offset, zoom_offset - 500000, t);
+        // let z = 1600;
+		// fov = lerp(radians(120), radians(20), t*5000);
+        perspective(fov, width/height, near, far);
+		camera(0, 0, z, 0, 0, z - 1000, 0, 1, 0);
+		zoom_t += 0.000001;
+		// zoom_t += 0.05;
+        // console.log(z);
+        // console.log(fov);
+	}
+
+    /*
+        2 → draw cut 
+    */
+
+    if (scene >= 2) {
+        push();
+        resetMatrix();
+        stroke(255, 0, 0);
+        strokeWeight(2);
+        let t = constrain(cut_t, 0, 1);
+        let yTop = lerp(0, -height / 2 + 100 * 10, t);
+        let yBottom = lerp(0, height / 2 - 100 * 10, t);
+        line(0, yTop, -5000, 0, yBottom, -5000);
+        pop();
+        // cut_t += 0.01;
+        cut_t += 0.1;       // debug
     }
 
     /*
@@ -67,7 +102,6 @@ function draw() {
     */
 
     if (scene >= 1) {
-        scene_t += 0.01;
 	    for (let i = points.length - 1; i >= 0; i--) {
 	        push();
 			fill(0, 255, 0, 100);
@@ -79,50 +113,25 @@ function draw() {
                 let layer = min(points[i].val, 1 - points[i].val);	
                 let fade_delay = layer * 4.0;
                 let fade_duration = 0.35;
-                let a = constrain((scene_t - fade_delay) / fade_duration, 0, 1);
-                a = ease(a);
+                let a = ease(constrain((points_t - fade_delay) / fade_duration, 0, 1));
                 fill(0, 255, 0, 255 * a);
 	            text(noSci(points[i].val, 64), 0, 0);
 	        }
 	        pop();
 	    }
-        console.log(fov);
+        // points_t += 0.01;
+        points_t += 0.1;    // debug
     }
 
     /*
-        2 → draw cut 
+        0 → draw 0 and 1
     */
 
-    if (scene >= 2) {
-        push();
-        resetMatrix();
-        stroke(255, 0, 0);
-        strokeWeight(2);
-        let lineT = constrain(scene_t, 0, 1);
-        let yTop = lerp(0, -height / 2 + 100 * 10, lineT);
-        let yBottom = lerp(0, height / 2 - 100 * 10, lineT);
-        line(0, yTop, 0, yBottom);
-        pop();
+    if (scene >= 0) {
+      	fill(255,0,0); 
+    	text(0,-width/2 * 0.75,0);
+	    text(1,width/2 * 0.75,0);
     }
-
-    /*
-        3 → zoom
-    */
-
-	if (scene === 3 && running) {
-		zoom_t += 0.001;
-		let t = min(zoom_t, 1);
-		let z = lerp(zoom_offset, zoom_offset - 500000, t);
-		fov = lerp(radians(120), radians(20), t);
-        perspective(fov, width/height, near, far);
-		camera(
-		    0, 0, z,
-		    0, 0, z - 1000,
-		    0, 1, 0
-		);
-	}
-
-    pop();
 }
 
 function populate_dense(_points, _points_max) {
@@ -193,24 +202,65 @@ function noSci(n, digits) {
     }
 }
 
+/*
+    screen recording
+    using builtin safari MediaRecorder()
+*/
+
+function startRecording() {
+    const canvas = document.querySelector('canvas');
+    const stream = canvas.captureStream(30);
+    const options = {
+        mimeType: 'video/mp4',
+        videoBitsPerSecond: 50000000
+    };
+    recorder = new MediaRecorder(stream, options);
+    chunks = [];
+    recorder.ondataavailable = e => {
+        if (e.data.size > 0) chunks.push(e.data);
+    };
+    recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'video/mp4' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'point-3-v2.mp4';
+        a.click();
+    };
+    recorder.start();
+}
+
+function stopRecording() {
+    if (recorder && recorder.state !== 'inactive') {
+        recorder.stop();
+    }
+}
+
 function keyPressed() {
     if (key === ' ') { 
         running = !running; 
     }
     if (key === '0') {
         scene = 0;
-        zoom_t = 0;
     }
     if (key === '1') {
         scene = 1;
-        scene_t = 0;
+        points_t = 0;
     }
     if (key === '2') {
         scene = 2;
-        scene_t = 0;
+        cut_t = 0;
     }
     if (key === '3') {
         scene = 3;
         zoom_t = 0;
+    }
+    if (key === '.') {
+        if (recording) {
+            stopRecording();
+            recording = false;
+        } else {
+            startRecording();
+            recording = true;
+        }
     }
 }
