@@ -16,7 +16,7 @@ let speed = 1500;           // frames over which to ease in [300]
 let ease = 3;               // pow(t, n) = nth-degree easing
 let running = false;        // animation starts paused
 let reverse = false;        // reverse animation
-let debug = true;
+let debug = false;
 let recorder;
 let chunks = [];
 let recording = false;
@@ -47,7 +47,7 @@ function draw() {
 
     if (running) {
         if (reverse)
-            t -= 1 / speed;  
+            t -= (1 / speed) * 5;  
         else
             t += 1 / speed;  
         t = constrain(t, 0, 1);
@@ -66,7 +66,7 @@ function draw() {
 
     push();
     fill(255,0,0);
-    textSize(96);
+    textSize(96*2);
     textAlign(CENTER, CENTER);
     translate(0, 0, -z); 
     scale(scaleFactor);
