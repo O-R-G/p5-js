@@ -1,5 +1,5 @@
 /*
-    point 0. two kinds of infinity
+    point 0. two infinities
 
     .   toggle record
         toggle pause
@@ -27,8 +27,10 @@ let chunks = [];
 let recording = false;
 
 function preload() {      
-    // explicit load required for webgl to display text
-    // cannot use system font, cannot use local p5.min.js
+    /*        
+        explicit load required for webgl to display text
+        cannot use system font, cannot use local p5.min.js
+    */    
     font = loadFont('assets/speech-to-text-webfont.ttf');
 }
 
