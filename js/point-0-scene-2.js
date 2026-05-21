@@ -17,7 +17,7 @@ let running = true;
 let fov = 1.0472; 
 let near = 0.01;
 let far = 1e6;
-let zoom_offset = 0; 
+let zoom_offset = 800;
 let scene = 0;
 let points_t = 0;
 let cut_t = 0;
@@ -38,7 +38,7 @@ function setup() {
     createCanvas(1600, 900, WEBGL);
     textFont(font);
     textAlign(CENTER, CENTER);
-    textSize(196);
+    textSize(96);
     points = populate_dense(points, points_max);
     perspective(fov, width/height, near, far);
 }
@@ -71,11 +71,10 @@ function draw() {
 	if (scene === 3 && running) {
 		let t = min(zoom_t, 1);
 		let z = lerp(zoom_offset, zoom_offset - 500000, t);
-        // let z = 1600;
 		// fov = lerp(radians(120), radians(20), t*5000);
         perspective(fov, width/height, near, far);
 		camera(0, 0, z, 0, 0, z - 1000, 0, 1, 0);
-		zoom_t += 0.000001;
+		zoom_t += 0.00001;
 		// zoom_t += 0.05;
         // console.log(z);
         // console.log(fov);
@@ -109,7 +108,7 @@ function draw() {
 			fill(0, 255, 0, 100);
 	        noStroke();
 	        let s = pow(0.5, points[i].layer);
-	        textSize(196 * 2 * s);
+	        textSize(96 * 2 * s);
 	        translate(points[i].x, points[i].y, points[i].z);
 	        if (![0, 0.5, 1].includes(points[i].val) || scene === 0) {
                 let layer = min(points[i].val, 1 - points[i].val);	
@@ -128,11 +127,12 @@ function draw() {
     /*
         0 → draw 0 and 1
     */
-
     if (scene >= 0) {
+        // push();
       	fill(255,0,0); 
-    	text(0,-width/2 * 0.75,0);
-	    text(1,width/2 * 0.75,0);
+    	text(0, -width/2-100, 0, 800);
+	    text(1, width/24, 0, 800);
+        // pop();
     }
 }
 
