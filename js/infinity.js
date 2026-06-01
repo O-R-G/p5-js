@@ -2,14 +2,19 @@ let pathData;
 let path;
 let pathLength;
 let phrase = "CO-CREATION ";
+// let phrase = "WE ARE HAPPY TO ANNOUNCE 3 NEW GRANTS ...";
+let font;
 let fontSize = 32;
-let letterSpacing = 20;
-let speed = 20; // pixels per second along path
+let letterSpacing = 37;
+// let letterSpacing = 20;
+// let letterSpacing = 0;       // for animated letterSpacing
+let speed = 50; // pixels per second along path
 let recorder;
 let chunks = [];
 let recording = false;
 
 function preload() {
+    font = loadFont('assets/standard-bold-webfont.ttf');
     loadStrings("assets/curve.svg", gotSVG);
 }
 
@@ -29,7 +34,8 @@ function gotSVG(lines) {
 
 function setup() {
   createCanvas(400,400);
-  textFont("Helvetica");
+  // textFont("Helvetica");
+  textFont(font);
   textSize(fontSize);
   textAlign(CENTER, CENTER);
 
@@ -40,7 +46,6 @@ function setup() {
 function draw() {
   background(0,0,220);
   translate(70,70);
-
   // optional: scale/position your path
   scale(1);
 
@@ -48,7 +53,7 @@ function draw() {
 
   let offset = (millis() / 1000) * speed;
 
-  let chars = phrase.repeat(3).split("");
+  let chars = phrase.repeat(2).split("");
 
   for (let i = 0; i < chars.length; i++) {
     let distance = (i * letterSpacing + offset) % pathLength;
@@ -66,6 +71,7 @@ function draw() {
     text(chars[i], 0, 0);
     pop();
   }
+    // letterSpacing += 0.1;
 }
 
 function drawPathGuide() {
