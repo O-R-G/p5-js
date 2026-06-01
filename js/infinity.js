@@ -1,14 +1,15 @@
 let pathData;
 let path;
 let pathLength;
-let phrase = "CO-CREATION ";
+let phrase = "CO-CREATION*";
 // let phrase = "WE ARE HAPPY TO ANNOUNCE 3 NEW GRANTS ...";
 let font;
-let fontSize = 32;
-let letterSpacing = 37;
+let fontSize = 40;
+let letterSpacing = 0;
+let letterSpacingTarget = 37;
 // let letterSpacing = 20;
 // let letterSpacing = 0;       // for animated letterSpacing
-let speed = 50; // pixels per second along path
+let speed = 30; // pixels per second along path
 let recorder;
 let chunks = [];
 let recording = false;
@@ -38,13 +39,12 @@ function setup() {
   textFont(font);
   textSize(fontSize);
   textAlign(CENTER, CENTER);
-
   path = new svgPathProperties.svgPathProperties(pathData);
   pathLength = path.getTotalLength();
 }
 
 function draw() {
-  background(0,0,220);
+  background(20,20,20);
   translate(70,70);
   // optional: scale/position your path
   scale(1);
@@ -66,12 +66,17 @@ function draw() {
     push();
     translate(p.x, p.y);
     rotate(angle);
-    fill(255,0,0);
+    if (i >= chars.length/2)
+        fill(255,0,0);
+    else
+        fill(0,0,220);
     noStroke();
     text(chars[i], 0, 0);
     pop();
   }
-    // letterSpacing += 0.1;
+    // animate letterSpacing
+    if (letterSpacing <= letterSpacingTarget)
+        letterSpacing += 0.1;
 }
 
 function drawPathGuide() {
@@ -124,7 +129,7 @@ function keyPressed() {
     if (key === ' ') {
         running = !running;
     }
-    if (key === '=') {
+    if (key === '_') {
         letterSpacing += 1;
     }
     if (key === '-') {
