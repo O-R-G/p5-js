@@ -1,8 +1,10 @@
 let pathData;
 let path;
 let pathLength;
-let phrase = "CO-CREATION*";
-// let phrase = "WE ARE HAPPY TO ANNOUNCE 3 NEW GRANTS ...";
+// let phrase = "CO-CREATION*CO-CREATION*";
+let phrase = "WE ARE HAPPY TO ANNOUNCE FOUR NEW GRANTS";
+// let phrase = "ANNOUNCING 4 NEW GRANTS ...";
+let repeats = 1;
 let font;
 let fontSize = 42;
 let letterSpacing = 0;          // animated letterSpacing
@@ -46,7 +48,7 @@ function draw() {
     if (running) {
         // drawPathGuide();
         let offset = (millis() / 1000) * speed;
-        let chars = phrase.repeat(2).split("");
+        let chars = phrase.repeat(repeats).split("");
         for (let i = 0; i < chars.length; i++) {
             let distance = (i * letterSpacing + offset) % pathLength;
             let p = path.getPointAtLength(distance);
