@@ -3,7 +3,8 @@ let path;
 let pathLength;
 // let phrase = "CO-CREATION*CO-CREATION*";
 let phrase = "INTERNATIONALCO-CREATION ";
-// let phrase = "WE ARE HAPPY TO ANNOUNCE FOUR NEW GRANTS";
+// let phrase = "INTRODUCING NEW GRANTS!";
+// let phrase = "& NINE NEW GRANTEES...";
 // let phrase = "ANNOUNCING 4 NEW GRANTS ...";
 let repeats = 1;
 let font;
@@ -12,6 +13,8 @@ let fontSize = 42;
 let letterSpacing = 36.85;
 let letterSpacingTarget = 36.85;
 let speed = 30;                 // pixels per second along path
+let speedTarget = 30;                 
+// let speedTarget = 3000;                 
 let recorder;
 let chunks = [];
 let recording = false;
@@ -47,6 +50,7 @@ function setup() {
 function draw() {
     background(50,0,0);
     // background(0,30,30);
+    // background(0,0,0);
     translate(70,70);
     scale(1);
     if (running) {
@@ -78,6 +82,8 @@ function draw() {
         }
         if (letterSpacing <= letterSpacingTarget)
             letterSpacing += 0.1;
+        if (speed <= speedTarget)
+            speed *= 1.025;
     }
 }
 
