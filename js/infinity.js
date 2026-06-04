@@ -2,19 +2,21 @@ let pathData;
 let path;
 let pathLength;
 // let phrase = "CO-CREATION*CO-CREATION*";
-let phrase = "WE ARE HAPPY TO ANNOUNCE FOUR NEW GRANTS";
+let phrase = "INTERNATIONALCO-CREATION ";
+// let phrase = "WE ARE HAPPY TO ANNOUNCE FOUR NEW GRANTS";
 // let phrase = "ANNOUNCING 4 NEW GRANTS ...";
 let repeats = 1;
 let font;
 let fontSize = 42;
-let letterSpacing = 0;          // animated letterSpacing
-// let letterSpacing = 36.85;
+// let letterSpacing = 0;          // animated letterSpacing
+let letterSpacing = 36.85;
 let letterSpacingTarget = 36.85;
 let speed = 30;                 // pixels per second along path
 let recorder;
 let chunks = [];
 let recording = false;
 let running = false;
+let red, green;
 
 function preload() {
     font = loadFont('assets/standard-bold-webfont.ttf');
@@ -23,7 +25,6 @@ function preload() {
 
 function gotSVG(lines) {
   let svg = lines.join("");
-  // finds first <path d="...">
   let match = svg.match(/<path[^>]* d="([^"]+)"/);
   if (!match) {
     console.error("No SVG path found.");
@@ -33,20 +34,24 @@ function gotSVG(lines) {
 }
 
 function setup() {
-  createCanvas(400,400);
-  textFont(font);
-  textSize(fontSize);
-  textAlign(CENTER, CENTER);
-  path = new svgPathProperties.svgPathProperties(pathData);
-  pathLength = path.getTotalLength();
+    createCanvas(400,400);
+    textFont(font);
+    textSize(fontSize);
+    textAlign(CENTER, CENTER);
+    path = new svgPathProperties.svgPathProperties(pathData);
+    pathLength = path.getTotalLength();
+    red = color(255,0,0);
+    green = color(0,255,0);
 }
 
 function draw() {
     background(50,0,0);
+    // background(0,30,30);
     translate(70,70);
     scale(1);
     if (running) {
         // drawPathGuide();
+        // drawGradientPath();
         let offset = (millis() / 1000) * speed;
         let chars = phrase.repeat(repeats).split("");
         for (let i = 0; i < chars.length; i++) {
@@ -58,11 +63,17 @@ function draw() {
             translate(p.x, p.y);
             rotate(angle);
             if (i >= chars.length/2)
-                fill(255,0,0);
+                // fill(255,0,0);
+                // fill(255,100,0);
+                fill(green);
             else
-                fill(0,0,220);
+                // fill(0,0,220);
+                // fill(0,255,0);
+                // fill(255,100,0);
+                fill(red);
             noStroke();
-            text(chars[i], 0, 0);
+            // text(chars[i], 0, 0);
+            text(chars[i], 0, -5);
             pop();
         }
         if (letterSpacing <= letterSpacingTarget)
@@ -72,14 +83,29 @@ function draw() {
 
 function drawPathGuide() {
   noFill();
-  stroke(200);
-  strokeWeight(1);
+  stroke(255,0,0);
+  strokeWeight(10);
   beginShape();
   for (let d = 0; d < pathLength; d += 4) {
     let p = path.getPointAtLength(d);
     vertex(p.x, p.y);
   }
   endShape();
+}
+
+function drawGradientPath() {
+  strokeWeight(24);
+  noFill();
+  for (let d = 0; d < pathLength - 4; d += 4) {
+    let p1 = path.getPointAtLength(d);
+    let p2 = path.getPointAtLength(d + 4);
+    // let amt = d / pathLength;
+let amt = (d / pathLength + frameCount * 0.005) % 1;
+    let c = lerpColor(red, green, amt);
+
+    stroke(c);
+    line(p1.x, p1.y, p2.x, p2.y);
+  }
 }
     
 /*
