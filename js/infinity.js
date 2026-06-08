@@ -6,6 +6,7 @@ let phrase = "INTERNATIONALCO-CREATION ";
 // let phrase = "INTRODUCING NEW GRANTS!";
 // let phrase = "& NINE NEW GRANTEES...";
 // let phrase = "ANNOUNCING 4 NEW GRANTS ...";
+// let phrase = "LET'S GO ON WALKABOUT";
 let repeats = 1;
 let font;
 let fontSize = 42;
@@ -48,7 +49,8 @@ function setup() {
 }
 
 function draw() {
-    background(50,0,0);
+    // background(50,0,0);
+    background(0,30,0);
     // background(0,30,30);
     // background(0,0,0);
     translate(70,70);
