@@ -46,14 +46,14 @@ function setup() {
     pathLength = path.getTotalLength();
     red = color(255,0,0);
     // green = color(0,255,0);
-    green = color(0,0,230);
+    green = color(255,200,0);
 }
 
 function draw() {
     // background(50,0,0);
     // background(0,30,0);
-    // background(0,30,30);
-    background(0,0,0);
+    background(0,30,50);
+    // background(0,0,0);
     translate(70,70);
     scale(1);
     if (running) {
