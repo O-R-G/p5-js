@@ -1,16 +1,11 @@
-let pathData;
 let path;
+let pathData;
 let pathLength;
-// let phrase = "CO-CREATION*CO-CREATION*";
 let phrase = "INTERNATIONALCO-CREATION ";
-// let phrase = "INTRODUCING NEW GRANTS!";
-// let phrase = "& NINE NEW GRANTEES...";
-// let phrase = "ANNOUNCING 4 NEW GRANTS ...";
-// let phrase = "LET'S GO ON WALKABOUT";
 let repeats = 1;
 let font;
 let fontSize = 42;
-// let letterSpacing = 0;          // animated letterSpacing
+// let letterSpacing = 0;
 let letterSpacing = 36.85;
 let letterSpacingTarget = 36.85;
 let speed = 30;                 // pixels per second along path
@@ -19,8 +14,10 @@ let speedTarget = 30;
 let recorder;
 let chunks = [];
 let recording = false;
-let running = false;
-let red, green;
+let running = true;
+let red, green, blue, yellow;
+let _red, _green, _blue, _yellow;
+let colors, _colors;
 
 function preload() {
     font = loadFont('assets/standard-bold-webfont.ttf');
@@ -45,15 +42,21 @@ function setup() {
     path = new svgPathProperties.svgPathProperties(pathData);
     pathLength = path.getTotalLength();
     red = color(255,0,0);
-    // green = color(0,255,0);
-    green = color(255,200,0);
+    _red = color(50,0,0);
+    green = color(0,150,0);
+    _green = color(0,30,0);
+    blue = color(0,100,200);
+    _blue = color(0,30,30);
+    yellow = color(255,150,0);
+    _yellow = color(100,50,0);
+    colors = [yellow, red, green];
+    _colors = [_blue, _red, _green];
+    shuffle(colors, true);
+    shuffle(_colors, true);
 }
 
 function draw() {
-    // background(50,0,0);
-    // background(0,30,0);
-    background(0,30,50);
-    // background(0,0,0);
+    background(_colors[0]);
     translate(70,70);
     scale(1);
     if (running) {
@@ -70,23 +73,23 @@ function draw() {
             translate(p.x, p.y);
             rotate(angle);
             if (i >= chars.length/2)
-                // fill(255,0,0);
-                // fill(255,100,0);
-                fill(green);
+                fill(colors[1]);
             else
-                // fill(0,0,220);
-                // fill(0,255,0);
-                // fill(255,100,0);
-                fill(red);
+                fill(colors[2]);
             noStroke();
-            // text(chars[i], 0, 0);
             text(chars[i], 0, -5);
             pop();
         }
         if (letterSpacing <= letterSpacingTarget)
-            letterSpacing += 0.1;
+            letterSpacing += 0.35;
         if (speed <= speedTarget)
             speed *= 1.025;
+        /*
+        if (frameCount % 60 === 0) {
+            colors.push(colors.shift());
+            _colors.push(_colors.shift());
+        }
+        */
     }
 }
 
@@ -160,6 +163,13 @@ function keyPressed() {
     if (key === '-') {
         letterSpacing -= 1;
     }
+    if (key === '+') {
+        speed += 10;
+    }
+    if (key === '=') {
+        speed -= 10;
+    }
+
     if (key === '.') {
         if (recording) {
             stopRecording();
