@@ -5,8 +5,8 @@ let phrase = "INTERNATIONALCO-CREATION ";
 let repeats = 1;
 let font;
 let fontSize = 42;
-// let letterSpacing = 0;
-let letterSpacing = 36.85;
+let letterSpacing = 0;
+// let letterSpacing = 36.85;
 let letterSpacingTarget = 36.85;
 let speed = 30;                 // pixels per second along path
 let speedTarget = 30;                 
@@ -49,7 +49,7 @@ function setup() {
     _blue = color(0,30,30);
     yellow = color(255,150,0);
     _yellow = color(100,50,0);
-    colors = [yellow, red, green];
+    colors = [green, red, yellow];
     _colors = [_blue, _red, _green];
     shuffle(colors, true);
     shuffle(_colors, true);
@@ -81,7 +81,7 @@ function draw() {
             pop();
         }
         if (letterSpacing <= letterSpacingTarget)
-            letterSpacing += 0.35;
+            letterSpacing += 1.025;
         if (speed <= speedTarget)
             speed *= 1.025;
         /*
