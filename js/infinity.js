@@ -6,15 +6,16 @@ let repeats = 1;
 let font;
 let fontSize = 42;
 let letterSpacing = 0;
-// let letterSpacing = 36.85;
 let letterSpacingTarget = 36.85;
+// let letterSpacing = 36;
+// let letterSpacingTarget = 36;
 let speed = 30;                 // pixels per second along path
 let speedTarget = 30;                 
 // let speedTarget = 3000;                 
 let recorder;
 let chunks = [];
 let recording = false;
-let running = true;
+let running = false;
 let red, green, blue, yellow;
 let _red, _green, _blue, _yellow;
 let colors, _colors;
@@ -51,8 +52,8 @@ function setup() {
     _yellow = color(100,50,0);
     colors = [green, red, yellow];
     _colors = [_blue, _red, _green];
-    shuffle(colors, true);
-    shuffle(_colors, true);
+    // shuffle(colors, true);
+    // shuffle(_colors, true);
 }
 
 function draw() {
@@ -85,7 +86,7 @@ function draw() {
         if (speed <= speedTarget)
             speed *= 1.025;
         /*
-        if (frameCount % 60 === 0) {
+        if (frameCount % 120 === 0) {
             colors.push(colors.shift());
             _colors.push(_colors.shift());
         }
@@ -112,9 +113,8 @@ function drawGradientPath() {
     let p1 = path.getPointAtLength(d);
     let p2 = path.getPointAtLength(d + 4);
     // let amt = d / pathLength;
-let amt = (d / pathLength + frameCount * 0.005) % 1;
+    let amt = (d / pathLength + frameCount * 0.005) % 1;
     let c = lerpColor(red, green, amt);
-
     stroke(c);
     line(p1.x, p1.y, p2.x, p2.y);
   }
@@ -169,7 +169,6 @@ function keyPressed() {
     if (key === '=') {
         speed -= 10;
     }
-
     if (key === '.') {
         if (recording) {
             stopRecording();
