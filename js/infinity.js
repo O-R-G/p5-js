@@ -51,7 +51,7 @@ function setup() {
     yellow = color('#FF9900');
     _yellow = color('#333300');
     colors = [green, red, yellow];
-    _colors = [_blue, _red, _green];
+    _colors = [_green, _red, _blue];
     // shuffle(colors, true);
     // shuffle(_colors, true);
 }
