@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Infinity — CSS/HTML/JS</title>
+  <style>
+    @font-face {
+      font-family: "Standard Bold";
+      src: url("../assets/standard-bold-webfont.ttf") format("truetype");
+      font-display: block;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: #222;
+    }
+
+    .canvas {
+      position: relative;
+      width: 400px;
+      height: 400px;
+      overflow: hidden;
+      /* background: transparent; */
+      background: #002;
+    }
+
+    .path-data {
+      position: absolute;
+      width: 267.75px;
+      height: 269.71px;
+      visibility: hidden;
+    }
+
+    .letters {
+      position: absolute;
+      inset: 0;
+    }
+
+    .letter {
+      position: absolute;
+      color: #FF9900;
+      font: 42px/1 "Standard Bold", sans-serif;
+      white-space: pre;
+      transform-origin: center;
+      will-change: left, top, transform;
+    }
+
+    .letter.second-half {
+      color: #FF0000;
+    }
+  </style>
+</head>
+<body>
+  <main class="canvas" aria-label="International co-creation infinity animation">
+    <svg class="path-data" viewBox="0 0 267.75 269.71" aria-hidden="true">
+      <path id="infinity-path" d="m246.58,112.65c60.16-56.44-24.06-152.93-86.12-93.45-58.64,56.19,3.19,179.44-47.03,229.66-60.16,60.16-155.14-26.26-92.23-87.96,62.91-61.69,166.14,7.33,225.39-48.25Z"/>
+    </svg>
+    <div class="letters" id="letters" aria-hidden="true"></div>
+  </main>
+
+  <script>
+    const phrase = 'INTERNATIONALCO-CREATION';
+    const colorBreak = 'INTERNATIONAL'.length;
+    const path = document.querySelector('#infinity-path');
+    const lettersElement = document.querySelector('#letters');
+    const pathLength = path.getTotalLength();
+    const letters = [...phrase].map((character, index) => {
+      const letter = document.createElement('span');
+      letter.className = 'letter';
+      letter.textContent = character;
+
+      if (index >= colorBreak) {
+        letter.classList.add('second-half');
+      }
+
+      lettersElement.appendChild(letter);
+      return letter;
+    });
+
+    const gapWeights = [...phrase].map((character, index) => {
+      const nextCharacter = phrase[(index + 1) % phrase.length];
+      return character === 'I' || nextCharacter === 'I' ? 0.8 : 1;
+    });
+    const spacingUnit = pathLength /
+      gapWeights.reduce((total, weight) => total + weight, 0);
+    const letterPositions = gapWeights.map((_, index) =>
+      gapWeights
+        .slice(0, index)
+        .reduce((total, weight) => total + weight * spacingUnit, 0)
+    );
+    const speed = 30;
+    let offset = 0;
+    let previousTime;
+
+    function render() {
+      letters.forEach((letter, index) => {
+        const distance = (letterPositions[index] + offset) % pathLength;
+        const point = path.getPointAtLength(distance);
+        const nextPoint = path.getPointAtLength((distance + 1) % pathLength);
+        const angle = Math.atan2(
+          nextPoint.y - point.y,
+          nextPoint.x - point.x
+        );
+
+        letter.style.left = `${point.x + 70}px`;
+        letter.style.top = `${point.y + 70}px`;
+        letter.style.transform =
+          `translate(-50%, -50%) rotate(${angle}rad)`;
+      });
+    }
+
+    function animate(time) {
+      if (previousTime !== undefined) {
+        offset = (offset + (time - previousTime) / 1000 * speed) % pathLength;
+      }
+
+      previousTime = time;
+      render();
+      requestAnimationFrame(animate);
+    }
+
+    render();
+    requestAnimationFrame(animate);
+  </script>
+</body>
+</html>
