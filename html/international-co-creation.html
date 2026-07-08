@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Infinity — CSS/HTML/JS</title>
   <style>
+    :root {
+      --canvas-size: 100px;
+    }
+
     @font-face {
       font-family: "Standard Bold";
       src: url("standard-bold-webfont.ttf") format("truetype");
@@ -20,11 +24,12 @@
 
     .canvas {
       position: relative;
-      width: 400px;
-      height: 400px;
+      width: var(--canvas-size);
+      height: var(--canvas-size);
+      font-size: var(--canvas-size);
       overflow: hidden;
-      /* background: transparent; */
-      background: #010;
+      background: transparent;
+      /* background: #010; */
     }
 
     .path-data {
@@ -42,7 +47,7 @@
     .letter {
       position: absolute;
       color: #FF9900;
-      font: 42px/1 "Standard Bold", sans-serif;
+      font: 10.5%/1 "Standard Bold", sans-serif;
       white-space: pre;
       transform-origin: center;
       will-change: left, top, transform;
@@ -64,6 +69,7 @@
   <script>
     const phrase = 'INTERNATIONALCO-CREATION';
     const colorBreak = 'INTERNATIONAL'.length;
+    const canvasElement = document.querySelector('.canvas');
     const path = document.querySelector('#infinity-path');
     const lettersElement = document.querySelector('#letters');
     const pathLength = path.getTotalLength();
@@ -96,6 +102,8 @@
     let previousTime;
 
     function render() {
+      const displayScale = canvasElement.clientWidth / 400;
+
       letters.forEach((letter, index) => {
         const distance = (letterPositions[index] + offset) % pathLength;
         const point = path.getPointAtLength(distance);
@@ -105,8 +113,8 @@
           nextPoint.x - point.x
         );
 
-        letter.style.left = `${point.x + 70}px`;
-        letter.style.top = `${point.y + 70}px`;
+        letter.style.left = `${(point.x + 70) * displayScale}px`;
+        letter.style.top = `${(point.y + 70) * displayScale}px`;
         letter.style.transform =
           `translate(-50%, -50%) rotate(${angle}rad)`;
       });

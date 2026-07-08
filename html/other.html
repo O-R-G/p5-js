@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dots 2 — CSS</title>
   <style>
+    :root {
+      --canvas-size: 100px;
+    }
+
     html,
     body {
       margin: 0;
@@ -14,8 +18,8 @@
 
     .canvas {
       position: relative;
-      width: 400px;
-      height: 400px;
+      width: var(--canvas-size);
+      height: var(--canvas-size);
       overflow: hidden;
       background: transparent;
     }
@@ -29,20 +33,20 @@
 
     .dot {
       position: absolute;
-      width: 180px;
-      height: 180px;
+      width: 45%;
+      aspect-ratio: 1;
       border-radius: 50%;
     }
 
     .dot-blue {
-      top: 35px;
-      left: 185px;
+      top: 8.75%;
+      left: 46.25%;
       background: #0000FF;
     }
 
     .dot-red {
-      top: 185px;
-      left: 35px;
+      top: 46.25%;
+      left: 8.75%;
       background: #FF0000;
     }
 
