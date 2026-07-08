@@ -175,10 +175,18 @@ function keyPressed() {
             recording = false;
             running = false;
         } else {
-            startRecording();
             recording = true;
             running = true;
+
+            requestAnimationFrame(() => {
+                startRecording();
+
+                setTimeout(() => {
+                    stopRecording();
+                    recording = false;
+                    running = false;
+                }, (pathLength / speed) * 1000);
+            });
         }
     }
 }
-
