@@ -43,15 +43,15 @@ function setup() {
     path = new svgPathProperties.svgPathProperties(pathData);
     pathLength = path.getTotalLength();
     red = color('#FF0000');
-    _red = color('#330000');
+    _red = color('#220000');
     green = color('#009900');
-    _green = color('#003300');
+    _green = color('#002200');
     blue = color('#000099');
-    _blue = color('#000033');
+    _blue = color('#000022');
     yellow = color('#FF9900');
-    _yellow = color('#333300');
+    _yellow = color('#222200');
     colors = [green, red, yellow];
-    _colors = [_green, _red, _blue];
+    _colors = [_blue, _red, _green];
     // shuffle(colors, true);
     // shuffle(_colors, true);
 }
